@@ -34,7 +34,7 @@ CXX = g++
 ###########################################################
 .PHONY: all dirs files clean
 
-all: main_build
+all: dirs main_build
 
 main_build: $(DEBUG_DIR)/$(BUILD_ARTIFACT_NAME) $(RELEASE_DIR)/$(BUILD_ARTIFACT_NAME)
 
@@ -53,11 +53,18 @@ $(RELEASE_DIR)/$(BUILD_ARTIFACT_NAME): $(CPP_RELEASE_OBJS)
 #################################################
 # CPP targets
 #################################################
-$(DEBUG_DIR)/%.o: %.cpp
+$(DEBUG_DIR)/%.o: %.cpp | $(DEBUG_DIR)
 	$(CXX) -g $< -o $@ -c $(CPP_FLAGS)
 
-$(RELEASE_DIR)/%.o: %.cpp
+$(RELEASE_DIR)/%.o: %.cpp | $(RELEASE_DIR)
 	$(CXX) $< -o $@ -c $(CPP_FLAGS) $(OPTIMIZATION)
+
+# Order-only prerequisites para crear directorios
+$(DEBUG_DIR):
+	@mkdir -p $(DEBUG_DIR)
+
+$(RELEASE_DIR):
+	@mkdir -p $(RELEASE_DIR)
 
 #################################################
 # Include dependencies
@@ -69,7 +76,6 @@ dirs:
 	@mkdir -p  $(SRC_DIR)
 	@mkdir -p  $(DEBUG_DIR)
 	@mkdir -p  $(RELEASE_DIR)
-	@echo "Dirs created!"
 
 files:
 	@echo "CPP"
