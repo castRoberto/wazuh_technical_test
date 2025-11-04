@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "m_wazuh_arg_parser.h"
+#include "m_wazuh_delimited_serializer.h"
 
 /******************************************************************************
  * C includes
@@ -81,10 +82,28 @@ int main (int argc, char* argv[]) {
     arg_parser.Parse (argc, argv);
 
     std::string mode = arg_parser[kModeOption];
-    std::string delimiter = arg_parser[kDelimiterOption];
+    char delimiter = arg_parser[kDelimiterOption][0];
 
-    std::cout << "Mode: " << mode << std::endl;
-    std::cout << "Delimiter: " << delimiter << std::endl;
+    WAZUH::DelimitedSerializer delimited_serializer (delimiter);
+
+    if ("serialize" == mode) {
+
+      std::string serialized = delimited_serializer.Serialize (std::cin);
+
+      std::cout << serialized << std::endl;
+
+    } else if ("deserialize" == mode) {
+
+      std::string deserialized = delimited_serializer.Deserialize (std::cin);
+
+      std::cout << deserialized;
+
+    } else {
+
+      std::cerr << "Invalid mode. Use 'serialize' or 'deserialize'." << std::endl;
+      return 1;
+
+    }
 
   } catch (const WAZUH::arg_parser_error& e) {
 
